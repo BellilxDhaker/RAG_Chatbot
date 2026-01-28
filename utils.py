@@ -10,6 +10,7 @@ from langchain.embeddings.base import Embeddings
 from langchain.llms.base import LLM
 from sklearn.feature_extraction.text import TfidfVectorizer
 from typing import List, Optional, Any
+import streamlit as st
 
 load_dotenv()
 
@@ -75,10 +76,13 @@ class SimpleLLM(LLM):
     
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.api_key = os.getenv("GOOGLE_API_KEY")
+        if "GOOGLE_API_KEY" in st.secrets:
+            self.api_key = st.secrets["GOOGLE_API_KEY"]
+        else:
+            self.api_key = os.getenv("GOOGLE_API_KEY")
+
         if not self.api_key:
-            raise ValueError("GOOGLE_API_KEY not found!")
-        
+            raise ValueError("GOOGLE_API_KEY not found! Please set it in .env or Streamlit secrets.")
         # Dynamically select available model
         self.model_name = self._get_available_model()
         print(f"✓ Using model: {self.model_name}")
